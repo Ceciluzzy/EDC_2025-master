@@ -1,0 +1,15 @@
+/camera_node:
+  ros__parameters:
+    camera_info_url: package://vision_bringup/config/camera_info.yaml
+    exposure_time:  10000
+    analog_gain: 64 #最小64
+
+/serial_driver:
+  ros__parameters:
+    timestamp_offset: 0.005
+    device_name: /dev/ttyCH341USB0
+    baud_rate: 115200
+    flow_control: false
+    parity: none
+    stop_bits: "1"
+

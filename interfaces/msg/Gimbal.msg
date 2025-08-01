@@ -1,0 +1,2 @@
+float32 gimbal_pitch
+float32 gimbal_yaw
