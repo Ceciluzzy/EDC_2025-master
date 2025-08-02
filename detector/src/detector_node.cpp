@@ -158,8 +158,8 @@ void DetectorNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg)
                 center_delta_msg.d_yaw = yaw_deg;
                 center_delta_msg.d_pitch = pitch_deg;
 
-                center_delta_msg.d_yaw = yaw_deg + gimbal_yaw_;
-                center_delta_msg.d_pitch = pitch_deg + gimbal_pitch_;
+                center_delta_msg.yaw = yaw_deg + gimbal_yaw_;
+                center_delta_msg.pitch = pitch_deg + gimbal_pitch_;
 
                 center_delta_pub_->publish(center_delta_msg);
 
