@@ -5,7 +5,6 @@ float32 purple_delta_y
 float64 box_center_x
 float64 box_center_y
 float64 box_center_z
-float64 image_center_z
 bool is_shoot
 float32 pitch
 float32 yaw

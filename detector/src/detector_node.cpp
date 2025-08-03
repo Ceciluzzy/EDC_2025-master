@@ -51,12 +51,12 @@ DetectorNode::DetectorNode(const rclcpp::NodeOptions & options)
         std::bind(&DetectorNode::imageCallback, this, std::placeholders::_1));
 
     // 创建云台姿态订阅器
-    gimbal_feedback_sub_ = this->create_subscription<interfaces::msg::CenterDelta>(
-        "/gimbal_feedback", rclcpp::SensorDataQoS(),
-        [this](interfaces::msg::CenterDelta::SharedPtr msg) {
+    gimbal_feedback_sub_ = this->create_subscription<interfaces::msg::Gimbal>(
+        "/gimbal", rclcpp::SensorDataQoS(),
+        [this](interfaces::msg::Gimbal::SharedPtr msg) {
             // 更新云台角度
-            gimbal_pitch_ = msg->pitch;
-            gimbal_yaw_ = msg->yaw;
+            gimbal_pitch_ = msg->gimbal_pitch;
+            gimbal_yaw_ = msg->gimbal_yaw;
         });
     
     // 创建心跳定时器（独立于图像处理）
@@ -117,7 +117,6 @@ void DetectorNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg)
         // 边框检测
         cv::Mat black_mask;
         std::vector<cv::Point2f> corners = CornerDetector_->Corner(frame, black_mask);
-        auto center_delta_msg = interfaces::msg::CenterDelta();
         
         if (corners.size() >= 5) {
             cv::Mat rvec, tvec;
@@ -130,10 +129,16 @@ void DetectorNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg)
                 rvec, tvec)) 
             {
                 auto center_delta_msg = interfaces::msg::CenterDelta();
+
                 center_delta_msg.red_position_x = box_center.x;
                 center_delta_msg.red_position_y = box_center.y;
                 center_delta_msg.purple_delta_x = box_center.x - image_center.x;
                 center_delta_msg.purple_delta_y = box_center.y - image_center.y;
+
+                if (center_delta_msg.purple_delta_x <= 20 && center_delta_msg.purple_delta_y <= 20)
+                {
+                    center_delta_msg.is_shoot = true;
+                }
                 
                 // 添加3D位置信息（使用相同的前缀）
                 center_delta_msg.box_center_x = tvec.at<double>(0);
@@ -160,6 +165,9 @@ void DetectorNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr msg)
 
                 center_delta_msg.yaw = yaw_deg + gimbal_yaw_;
                 center_delta_msg.pitch = pitch_deg + gimbal_pitch_;
+
+                // RCLCPP_ERROR(this->get_logger(), "gimbal_yaw_%.2f°, gimbal_pitch_%.2f°", 
+                //             gimbal_yaw_, gimbal_pitch_);
 
                 center_delta_pub_->publish(center_delta_msg);
 

@@ -47,7 +47,7 @@ private:
   
   // 订阅器
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
-  rclcpp::Subscription<interfaces::msg::CenterDelta>::SharedPtr gimbal_feedback_sub_;
+  rclcpp::Subscription<interfaces::msg::Gimbal>::SharedPtr gimbal_feedback_sub_;
 
   // Camera info part
   rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr cam_info_sub_;

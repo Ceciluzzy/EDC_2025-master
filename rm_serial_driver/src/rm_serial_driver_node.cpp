@@ -59,7 +59,7 @@ namespace rm_serial_driver
                                 std::bind(&SerialDriverNode::transmit, this));
 
     // 启动接收线程
-    rx_thread = std::thread(&SerialDriverNode::rx, this);
+    // rx_thread = std::thread(&SerialDriverNode::rx, this);
   }
 
   // 接收线程函数
@@ -186,9 +186,9 @@ namespace rm_serial_driver
     Header packet_header;
     std::memcpy(&packet_header, data, sizeof(Header));
     
-    RCLCPP_INFO(get_logger(), "Packet Header:");
-    RCLCPP_INFO(get_logger(), "  Protocol ID: 0x%02X", packet_header.protocolID);
-    RCLCPP_INFO(get_logger(), "  Data Length: %d", packet_header.dataLen);
+    // RCLCPP_INFO(get_logger(), "Packet Header:");
+    // RCLCPP_INFO(get_logger(), "  Protocol ID: 0x%02X", packet_header.protocolID);
+    // RCLCPP_INFO(get_logger(), "  Data Length: %d", packet_header.dataLen);
     
     // 打印完整数据包的十六进制值
     int full_length = sizeof(Header) + packet_header.dataLen + 2;
@@ -198,7 +198,7 @@ namespace rm_serial_driver
         snprintf(byte_str, sizeof(byte_str), "%02X ", data[i]);
         hex_dump += byte_str;
     }
-    RCLCPP_INFO(get_logger(), "%s", hex_dump.c_str());
+    // RCLCPP_INFO(get_logger(), "%s", hex_dump.c_str());
 
     // 尝试解析云台消息
     InfantryGimbalMsg packet = bufferToStruct<InfantryGimbalMsg>(data);
@@ -211,7 +211,7 @@ namespace rm_serial_driver
     
     try
     {
-        RCLCPP_INFO(get_logger(), "classify: pitch:%f yaw:%f", packet.pitch, packet.yaw);
+        // RCLCPP_INFO(get_logger(), "classify: pitch:%f yaw:%f", packet.pitch, packet.yaw);
         classify_pkg_sum++;
         double pitch, yaw;
         pitch = packet.pitch;
@@ -507,7 +507,7 @@ PkgState SerialDriverNode::decode()
       packet.header.dataLen = sizeof(GimbalCommand) - sizeof(Header) - 2;
       packet.header.protocolID = GIMBAL_CMD;
       packet.is_shoot = msg->is_shoot;
-      packet.pitch_cmd = msg->pitch;
+      packet.pitch_cmd = -(msg->pitch);
       packet.yaw_cmd = msg->yaw;
       crc16::Append_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet),
                                     sizeof(Header));
